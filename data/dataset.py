@@ -12,7 +12,7 @@ import pickle
 
 class Dataset(data.Dataset):
 
-    def __init__(self, list_path, mode='train', insize=64):
+    def __init__(self, list_path, mode='train', insize=64, debug=False):
         self.list_path = list_path
         self.target_dir = '/'.join(list_path.split('/')[:-1])
         self.mode = mode
@@ -20,6 +20,9 @@ class Dataset(data.Dataset):
 
         with open(list_path) as f:
             self.filenames = list(map(lambda x: x.strip(), f.readlines()))
+        if debug:
+            self.filenames = self.filenames[:128]
+
         with open(os.path.join(self.target_dir, 'i2l.pickle'), 'rb') as f:
             self.i2l = pickle.load(f)
         with open(os.path.join(self.target_dir, 'l2i.pickle'), 'rb') as f:
@@ -28,12 +31,14 @@ class Dataset(data.Dataset):
         assert self.mode in ['train', 'test']
         if self.mode == 'train':
             self.transforms = T.Compose([
+                T.Resize((insize, insize)),
                 T.RandomRotation(30),
                 T.ToTensor(),
                 T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
             ])
         elif self.mode == 'test':
             self.transforms = T.Compose([
+                T.Resize((insize, insize)),
                 T.ToTensor(),
                 T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
             ])
