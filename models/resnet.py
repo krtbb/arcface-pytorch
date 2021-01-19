@@ -223,7 +223,7 @@ class ResNetFace(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, insize, outsize):
+    def __init__(self, block, layers, insize, outsize, c):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
@@ -240,7 +240,7 @@ class ResNet(nn.Module):
         # self.avgpool = nn.AvgPool2d(8, stride=1)
         # self.fc = nn.Linear(512 * block.expansion, num_classes)
         # self.fc5 = nn.Linear(512 * 8 * 8, 512)
-        self.fc5 = nn.Linear(512 * (insize//32)**2, outsize)
+        self.fc5 = nn.Linear(512 * c * (insize//32)**2, outsize)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -300,7 +300,7 @@ def resnet34(insize, outsize, pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(BasicBlock, [3, 4, 6, 3], insize, outsize, **kwargs)
+    model = ResNet(BasicBlock, [3, 4, 6, 3], insize, outsize, 1, **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
     return model
@@ -311,7 +311,7 @@ def resnet50(insize, outsize, pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(Bottleneck, [3, 4, 6, 3],insize, outsize, **kwargs)
+    model = ResNet(Bottleneck, [3, 4, 6, 3],insize, outsize, 4, **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
     return model
