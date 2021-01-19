@@ -15,6 +15,8 @@ from torch.nn import DataParallel
 from torch.optim.lr_scheduler import StepLR
 from test import *
 import datetime
+from tqdm import tqdm, trange
+import json
 
 
 def save_model(model, save_path, name, iter_cnt):
@@ -39,20 +41,18 @@ def train(
         metric_name = 'arc_margin',
         optim_name = 'adam',
         num_workers = 4,
-        print_freq = 1e+6
+        print_freq = 1e+6,
+        debug = False
     ):
 
-    #opt = Config()
-    #if opt.display:
-    #    visualizer = Visualizer()
     device = torch.device("cuda")
 
-    train_dataset = Dataset(train_list, mode='train', insize=insize)
+    train_dataset = Dataset(train_list, mode='train', insize=insize, debug=debug)
     trainloader = torch.utils.data.DataLoader(train_dataset,
                                   batch_size=batchsize,
                                   shuffle=True,
                                   num_workers=num_workers)
-    test_dataset = Dataset(test_list, mode='test', insize=insize)
+    test_dataset = Dataset(test_list, mode='test', insize=insize, debug=debug)
     testloader = torch.utils.data.DataLoader(test_dataset,
                                   batch_size=batchsize,
                                   shuffle=False,
@@ -107,12 +107,38 @@ def train(
 
     start = time.time()
     training_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    chackpoints_dir = os.path.join('logs', training_id)
-    for i in range(epoch):
-        scheduler.step()
+    checkpoints_dir = os.path.join('logs', training_id)
+    if not os.path.exists(checkpoints_dir):
+        os.makedirs(checkpoints_dir)
+    logging_path = os.path.join(checkpoints_dir, 'history.csv')
+    
+    config = {}
+    config['train_list'] = train_list
+    config['test_list'] = test_list
+    config['lr'] = lr
+    config['epoch'] = epoch
+    config['batchsize'] = batchsize
+    config['insize'] = insize
+    config['outsize'] = outsize
+    config['save_interval'] = save_interval
+    config['weight_decay'] = weight_decay
+    config['lr_step'] = lr_step
+    config['model_name'] = model_name
+    config['loss_name'] = loss_name
+    config['metric_name'] = metric_name
+    config['optim_name'] = optim_name
+    config['num_workers'] = num_workers
+    config['debug'] = debug
+    with open(os.path.join(checkpoints_dir, 'train_config.json'), 'w') as f:
+        json.dump(config, f, indent=4)
 
+    with open(logging_path, 'w') as f:
+        f.write('epoch,train_loss,train_acc,test_loss,test_acc\n')
+        
+    prev_time = datetime.datetime.now()
+    for i in range(epoch):
         model.train()
-        for ii, data in enumerate(trainloader):
+        for ii, data in enumerate(tqdm(trainloader, disable=debug)):
             data_input, label = data
             data_input = data_input.to(device)
             label = label.to(device).long()
@@ -126,13 +152,14 @@ def train(
 
             iters = i * len(trainloader) + ii
 
-            if iters % print_freq == 0:
+            if iters % print_freq == 0 or debug:
                 output = output.data.cpu().numpy()
                 output = np.argmax(output, axis=1)
                 label = label.data.cpu().numpy()
                 # print(output)
                 # print(label)
                 acc = np.mean((output == label).astype(int))
+                print(output, label)
                 speed = print_freq / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
                 print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, ii, speed, loss.item(), acc))
@@ -144,7 +171,12 @@ def train(
                 start = time.time()
 
         if i % save_interval == 0 or i == epoch:
-            save_model(model, checkpoints_dir, modelname, i)
+            save_model(model, checkpoints_dir, model_name, i)
+
+        new_time = datetime.datetime.now()
+        with open(logging_path, 'a') as f:
+            f.write('{},{},{},{},{}\n'.format(i, (new_time-prev_time).total_seconds(), loss.item(), acc, None, None))
+        prev_time = datetime.datetime.now()
 
         #model.eval()
         #acc = lfw_test(model, img_paths, identity_list, opt.lfw_test_list, opt.test_batch_size)
@@ -159,7 +191,7 @@ if __name__ == '__main__':
     parser.add_argument('test_list')
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--epoch', default=10000, type=int)
-    parser.add_argument('--batchsize', default=32, type=int)
+    parser.add_argument('--batchsize', default=64, type=int)
     parser.add_argument('--insize', default=64, type=int, help='size of input image, default=64')
     parser.add_argument('--outsize', default=128, type=int, help='size of encodings, default=128')
     parser.add_argument('--save_interval', default=10, type=int, help='about model, default=10')
@@ -168,6 +200,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_name', default='resnet34', type=str, help='resnet34, resnet50, resnet101, resnet152')
     parser.add_argument('--num_workers', default=4, type=int, help='num_workers, default=4')
     parser.add_argument('--print_freq', default=1e+6, type=int, help='frequency of printing results, default=4')
+    parser.add_argument('--debug', action='store_true')
 
     args = parser.parse_args()
 
@@ -184,5 +217,6 @@ if __name__ == '__main__':
         lr_step = args.lr_step,
         model_name = args.model_name,
         num_workers = args.num_workers,
-        print_freq = args.print_freq
+        print_freq = args.print_freq,
+        debug = args.debug
     )
