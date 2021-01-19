@@ -240,7 +240,7 @@ class ResNet(nn.Module):
         # self.avgpool = nn.AvgPool2d(8, stride=1)
         # self.fc = nn.Linear(512 * block.expansion, num_classes)
         # self.fc5 = nn.Linear(512 * 8 * 8, 512)
-        self.fc5 = nn.Linear(512 * (insize//16)**2, outsize)
+        self.fc5 = nn.Linear(512 * (insize//32)**2, outsize)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
