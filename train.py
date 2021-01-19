@@ -2,7 +2,6 @@ from __future__ import print_function
 import os
 from data.dataset import Dataset
 import torch
-#from torch.utils import data
 import torch.nn.functional as F
 from models import *
 import torchvision
