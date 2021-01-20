@@ -16,7 +16,7 @@ from test import *
 import datetime
 from tqdm import tqdm, trange
 import json
-
+from hyperdash import Experiment
 
 def save_model(model, save_path, name, iter_cnt):
     save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
@@ -106,6 +106,7 @@ def train(
 
     start = time.time()
     training_id = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    hyperdash_exp = Experiment(training_id)
     checkpoints_dir = os.path.join('logs', training_id)
     if not os.path.exists(checkpoints_dir):
         os.makedirs(checkpoints_dir)
@@ -128,16 +129,18 @@ def train(
     config['optim_name'] = optim_name
     config['num_workers'] = num_workers
     config['debug'] = debug
+    for k, v in config.items():
+        hyperdash_exp.param(k, v, log=False)
     with open(os.path.join(checkpoints_dir, 'train_config.json'), 'w') as f:
         json.dump(config, f, indent=4)
 
     with open(logging_path, 'w') as f:
-        f.write('epoch,train_loss,train_acc,test_loss,test_acc\n')
+        f.write('epoch,time_elapsed,train_loss,train_acc,test_loss,test_acc\n')
         
     prev_time = datetime.datetime.now()
     for i in range(epoch):
         model.train()
-        for ii, data in enumerate(tqdm(trainloader, disable=debug)):
+        for ii, data in enumerate(tqdm(trainloader, disable=True)):
             data_input, label = data
             data_input = data_input.to(device)
             label = label.to(device).long()
@@ -146,8 +149,10 @@ def train(
             loss = criterion(output, label)
             optimizer.zero_grad()
             loss.backward()
+
+            #import pdb; pdb.set_trace()
             optimizer.step()
-            scheduler.step()
+            #scheduler.step()
 
             iters = i * len(trainloader) + ii
 
@@ -155,32 +160,40 @@ def train(
                 output = output.data.cpu().numpy()
                 output = np.argmax(output, axis=1)
                 label = label.data.cpu().numpy()
-                # print(output)
-                # print(label)
                 acc = np.mean((output == label).astype(int))
-                print(output, label)
                 speed = print_freq / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
                 print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, ii, speed, loss.item(), acc))
-                #if opt.display:
-                if False:
-                    visualizer.display_current_results(iters, loss.item(), name='train_loss')
-                    visualizer.display_current_results(iters, acc, name='train_acc')
 
                 start = time.time()
+
+        model.eval()
+        for ii, data in enumerate(tqdm(testloader, disable=True)):
+            data_input, label = data
+            data_input = data_input.to(device)
+            label = label.to(device).long()
+            feature = model(data_input)
+            output = metric_fc(feature, label)
+            test_loss = criterion(output, label)
+            output = np.argmax(output.data.cpu().numpy(), axis=1)
+            test_acc = np.mean((output == label.data.cpu().numpy()).astype(int))
+            #test_acc = np.mean((torch.argmax(output, dim=1) == label).type(torch.int32))
 
         if i % save_interval == 0 or i == epoch:
             save_model(model, checkpoints_dir, model_name, i)
 
         new_time = datetime.datetime.now()
         with open(logging_path, 'a') as f:
-            f.write('{},{},{},{},{}\n'.format(i, (new_time-prev_time).total_seconds(), loss.item(), acc, None, None))
+            f.write('{},{},{},{},{}\n'.format(i, (new_time-prev_time).total_seconds(), loss.item(), acc, test_loss.item(), test_acc))
         prev_time = datetime.datetime.now()
 
-        #model.eval()
-        #acc = lfw_test(model, img_paths, identity_list, opt.lfw_test_list, opt.test_batch_size)
-        #if opt.display:
-        #    visualizer.display_current_results(iters, acc, name='test_acc')
+        hyperdash_exp.metric('train_loss', loss.item(), log=False)
+        hyperdash_exp.metric('train_acc', acc, log=False)
+        hyperdash_exp.metric('test_loss', test_loss.item(), log=False)
+        hyperdash_exp.metric('test_acc', test_acc, log=False)
+
+    hyperdash_exp.end()
+    print('Finished {}'.format(training_id))
 
 if __name__ == '__main__':
     import argparse
