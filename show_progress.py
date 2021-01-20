@@ -23,12 +23,14 @@ def show_progress(target_dir):
         plt.plot(hist['epoch'], hist['train_loss'], label='train')
         plt.plot(hist['epoch'], hist['test_loss'], label='test')
         plt.grid()
+        plt.ylabel('Loss')
         plt.legend()
 
         plt.subplot(2,1,2)
         plt.plot(hist['epoch'], hist['train_acc'], label='train')
         plt.plot(hist['epoch'], hist['test_acc'], label='test')
         plt.grid()
+        plt.ylabel('Accuracy')
         plt.legend()
 
         plt.tight_layout()
