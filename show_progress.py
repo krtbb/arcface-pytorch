@@ -3,7 +3,6 @@ import pandas as pd
 import sys
 
 def show_progress(target_dir, show=False, ylim=[0,0], ylog=False):
-
     if '*' in target_dir:
         from glob import glob
         target_dirs = glob(target_dir)
@@ -15,7 +14,7 @@ def show_progress(target_dir, show=False, ylim=[0,0], ylog=False):
             import matplotlib
             matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        
+
         print(target_dir)
         history_path = os.path.join(target_dir, 'history.csv')
         hist = pd.read_csv(history_path)
