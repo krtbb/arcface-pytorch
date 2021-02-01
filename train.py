@@ -184,7 +184,7 @@ def train(
 
         new_time = datetime.datetime.now()
         with open(logging_path, 'a') as f:
-            f.write('{},{},{},{},{}\n'.format(i, (new_time-prev_time).total_seconds(), loss.item(), acc, test_loss.item(), test_acc))
+            f.write('{},{},{},{},{},{}\n'.format(i, (new_time-prev_time).total_seconds(), loss.item(), acc, test_loss.item(), test_acc))
         prev_time = datetime.datetime.now()
 
         hyperdash_exp.metric('train_loss', loss.item(), log=False)
