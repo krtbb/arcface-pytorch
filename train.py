@@ -181,6 +181,7 @@ def train(
 
         if i % save_interval == 0 or i == epoch:
             save_model(model, checkpoints_dir, model_name, i)
+            save_model(metric_fc, checkpoints_dir, metric_name, i)
 
         new_time = datetime.datetime.now()
         with open(logging_path, 'a') as f:
