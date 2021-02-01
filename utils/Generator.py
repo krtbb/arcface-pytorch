@@ -27,12 +27,15 @@ class Generator(object):
         
         self.device = torch.device(device)
         self.model.to(self.device)
+        self.insize = self.config['insize']
+        self.outsize = self.config['outsize']
 
         if epoch < 0:
             query = os.path.join(self.log_dir, '{}*.pth'.format(self.config['model_name']))
             pths = glob(query)
             epochs = list(map(lambda x: int(x.split('/')[-1].split('.')[0].split('_')[1]), pths))
             max_epoch = max(epochs)
+            print('Load models in {} epochs'.format(max_epoch))
             pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['model_name'], max_epoch))
         else:
             pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['model_name'], epoch))
