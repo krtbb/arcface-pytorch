@@ -35,13 +35,13 @@ class Dataset(data.Dataset):
                 T.Resize((insize, insize)),
                 T.RandomRotation(30),
                 T.ToTensor(),
-                T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+                T.Normalize(mean=[0., 0., 0.], std=[255., 255., 255.])
             ])
         elif self.mode == 'test':
             self.transforms = T.Compose([
                 T.Resize((insize, insize)),
                 T.ToTensor(),
-                T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+                T.Normalize(mean=[0., 0., 0.], std=[255., 255., 255.])
             ])
 
     def __getitem__(self, index):
