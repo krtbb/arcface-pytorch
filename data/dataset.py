@@ -12,11 +12,12 @@ import pickle
 
 class Dataset(data.Dataset):
 
-    def __init__(self, list_path, mode='train', insize=64, debug=False):
+    def __init__(self, list_path, mode='train', insize=64, get_with_filename=False, debug=False):
         self.list_path = list_path
         self.target_dir = '/'.join(list_path.split('/')[:-1])
         self.mode = mode
         self.insize = insize
+        self.get_with_filename = get_with_filename
 
         with open(list_path) as f:
             self.filenames = list(map(lambda x: x.strip(), f.readlines()))
@@ -48,7 +49,10 @@ class Dataset(data.Dataset):
         image = Image.open(filepath)
         image = self.transforms(image)
         label = filepath.split('/')[-2]
-        return image.float(), self.l2i[label]
+        if self.get_with_filename:
+            return filepath, image.float(), self.l2i[label]
+        else:
+            return image.float(), self.l2i[label]
 
     def __len__(self):
         return len(self.filenames)
