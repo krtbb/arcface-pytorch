@@ -58,10 +58,10 @@ def evaluate(
     accuracy = corrects_num / total_num
 
     # print result
-    print('***  ', log_dir, '  ***')
-    print('    Total data: {}'.format(total_num))
-    print('    Correct prediction: {}'.format(corrects_num))
-    print('    Accuracy = {}'.format(accuracy))
+    print('** ', log_dir, ' **')
+    print('  Total data: {}'.format(total_num))
+    print('  Correct prediction: {}'.format(corrects_num))
+    print('  Accuracy = {}'.format(accuracy))
 
 if __name__ == '__main__':
     import argparse

@@ -53,9 +53,6 @@ class MetricGenerator(object):
         with open(json_path) as f:
             self.config = json.load(f)
 
-        print('outsize = {}'.format(self.config['outsize']))
-        print('class_num = {}'.format(class_num))
-
         if self.config['metric_name'] == 'add_margin':
             self.metric_fc = AddMarginProduct(self.config['outsize'], class_num, s=30, m=0.35)
             _i = 2
