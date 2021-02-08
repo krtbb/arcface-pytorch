@@ -164,15 +164,20 @@ class ResNetFace(nn.Module):
         self.outsize = outsize
         self.inplanes = 64
         self.use_se = use_se
+        if   insize == 256: strides = [2,2,2,2]
+        elif insize == 128: strides = [1,2,2,2]
+        elif insize ==  64: strides = [1,1,2,2]
+        elif insize ==  32: strides = [1,1,1,2]
+        
         super(ResNetFace, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.prelu = nn.PReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1])#, stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.layer1 = self._make_layer(block, 64, layers[0], stride=strides[0])
+        self.layer2 = self._make_layer(block, 128, layers[1], stride=strides[1])
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=strides[2])
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=strides[3])
         self.bn4 = nn.BatchNorm2d(512)
         self.dropout = nn.Dropout()
         self.fc5 = nn.Linear(512 * 8 * 8, self.outsize)
