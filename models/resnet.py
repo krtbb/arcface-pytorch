@@ -159,22 +159,24 @@ class SEBlock(nn.Module):
 
 
 class ResNetFace(nn.Module):
-    def __init__(self, block, layers, use_se=True):
+    def __init__(self, insize, outsize, block, layers, use_se=True):
+        self.insize = insize
+        self.outsize = outsize
         self.inplanes = 64
         self.use_se = use_se
         super(ResNetFace, self).__init__()
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=3, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.prelu = nn.PReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
+        self.layer2 = self._make_layer(block, 128, layers[1])#, stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.bn4 = nn.BatchNorm2d(512)
         self.dropout = nn.Dropout()
-        self.fc5 = nn.Linear(512 * 8 * 8, 512)
-        self.bn5 = nn.BatchNorm1d(512)
+        self.fc5 = nn.Linear(512 * 8 * 8, self.outsize)
+        self.bn5 = nn.BatchNorm1d(self.outsize)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -339,6 +341,6 @@ def resnet152(insize, outsize, pretrained=False, **kwargs):
     return model
 
 
-def resnet_face18(use_se=True, **kwargs):
-    model = ResNetFace(IRBlock, [2, 2, 2, 2], use_se=use_se, **kwargs)
+def resnet_face18(insize, outsize, use_se=True, **kwargs):
+    model = ResNetFace(insize, outsize, IRBlock, [2, 2, 2, 2], use_se=use_se, **kwargs)
     return model
