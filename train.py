@@ -67,7 +67,7 @@ def train(
         criterion = torch.nn.CrossEntropyLoss()
 
     if model_name == 'resnet18':
-        model = resnet_face18(use_se=opt.use_se)
+        model = resnet_face18(insize, outsize)
     elif model_name == 'resnet34':
         model = resnet34(insize, outsize)
     elif model_name == 'resnet50':
@@ -76,8 +76,10 @@ def train(
         model = resnet101(insize, outsize)
     elif model_name == 'resnet152':
         model = resnet152(insize, outsize)
+    elif model_name == 'shuffle':
+        model = ShuffleFaceNet(outsize)
     else:
-        raise ValueError('Invalid model name: {}'.format(modelname))
+        raise ValueError('Invalid model name: {}'.format(model_name))
 
     if metric_name == 'add_margin':
         metric_fc = AddMarginProduct(outsize, class_num, s=30, m=0.35)
