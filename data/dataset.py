@@ -32,8 +32,10 @@ class Dataset(data.Dataset):
         assert self.mode in ['train', 'test']
         if self.mode == 'train':
             self.transforms = T.Compose([
-                T.Resize((insize, insize)),
+                T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4),
+                T.RandomPerspective(distortion_scale=0.2, p=0.6),
                 T.RandomRotation(30),
+                T.Resize((insize, insize)),
                 T.ToTensor(),
                 T.Normalize(mean=[0., 0., 0.], std=[255., 255., 255.])
             ])
