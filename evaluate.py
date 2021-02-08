@@ -40,6 +40,9 @@ def evaluate(
     assert model_gen.config['outsize'] == metric_gen.config['insize']
 
     # run prediction
+    preds_history = []
+    labels_history = []
+
     total_num = 0.
     corrects_num = 0.
     for i, data in enumerate(tqdm(dataloader)):
@@ -50,14 +53,21 @@ def evaluate(
         features = features.to(device)
         probabilities = metric_gen(features, labels)
         preds = np.argmax(probabilities.data.cpu().numpy(), axis=1)
-        acc = (preds==labels.data.cpu().numpy()).astype(int)
+        labels_cpu = labels.data.cpu().numpy()
+        acc = (preds==labels_cpu).astype(int)
 
         total_num += len(images) # batch num
         corrects_num += np.sum(acc) # corrent prediction num
 
+        preds_history.extend(list(preds))
+        labels_history.extend(list(labels_cpu))
+
     accuracy = corrects_num / total_num
 
     # print result
+    for p, l in zip(preds_history, labels_history):
+        print(p, l)
+
     print('** ', log_dir, ' **')
     print('  Total data: {}'.format(total_num))
     print('  Correct prediction: {}'.format(corrects_num))
