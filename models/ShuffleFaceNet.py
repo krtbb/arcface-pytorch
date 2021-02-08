@@ -128,7 +128,7 @@ class ShuffleFaceNet(nn.Module):
         input_channels = output_channels
         self.linearconv = nn.Conv1d(input_channels, self.outsize, kernel_size=1, stride=1, padding=0)
 
-        self.bn = nn.BatchNorm2d(output_channels)
+        self.bn = nn.BatchNorm2d(self.outsize)
 
 
     def _forward_impl(self, x):
