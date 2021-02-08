@@ -147,6 +147,8 @@ def train(
             feature = model(data_input)
             output = metric_fc(feature, label)
             loss = criterion(output, label)
+            pred_classes = np.argmax(output.data.cpu().numpy(), axis=1)
+            acc = np.mean((pred_classes == label.data.cpu().numpy()).astype(int))
             optimizer.zero_grad()
             loss.backward()
 
@@ -157,10 +159,6 @@ def train(
             iters = i * len(trainloader) + ii
 
             if iters % print_freq == 0 or debug:
-                output = output.data.cpu().numpy()
-                output = np.argmax(output, axis=1)
-                label = label.data.cpu().numpy()
-                acc = np.mean((output == label).astype(int))
                 speed = print_freq / (time.time() - start)
                 time_str = time.asctime(time.localtime(time.time()))
                 print('{} train epoch {} iter {} {} iters/s loss {} acc {}'.format(time_str, i, ii, speed, loss.item(), acc))
