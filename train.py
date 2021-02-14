@@ -78,6 +78,8 @@ def train(
         model = resnet152(insize, outsize)
     elif model_name == 'shuffle':
         model = ShuffleFaceNet(outsize)
+    elif model_name == 'simplev1':
+        model = CNNv1(insize, outsize, activation='relu', kernel_pattern='v1')
     else:
         raise ValueError('Invalid model name: {}'.format(model_name))
 
