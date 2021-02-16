@@ -49,7 +49,7 @@ class Generator(object):
         self.outsize = self.config['outsize']
 
         if load_state:
-            self.load_state(epoch)
+            self.load_state(epoch, strict=True)
 
     def load_state(self, epoch, strict=False):
         if epoch < 0:
@@ -91,7 +91,7 @@ class MetricGenerator(object):
         self.outsize = self.config['outsize']
 
         if load_state:
-            self.load_state(epoch)
+            self.load_state(epoch, strict=True)
 
     def load_state(self, epoch, strict=False):
         if epoch < 0:
