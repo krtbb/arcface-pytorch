@@ -110,21 +110,3 @@ class MetricGenerator(object):
     
     def __call__(self, x, y):
         return self.metric_fc(x, y)
-
-
-'''
-        if epoch < 0:
-            query = os.path.join(self.log_dir, '{}*.pth'.format(self.config['metric_name']))
-            pths = glob(query)
-            epochs = list(map(lambda x: int(x.split('/')[-1].split('.')[0].split('_')[_i]), pths))
-            max_epoch = max(epochs)
-            print('Load metric_fc in {} epochs'.format(max_epoch))
-            pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['metric_name'], max_epoch))
-        else:
-            pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['metric_name'], epoch))
-        
-        self.metric_fc.load_state_dict(torch.load(pth_path, map_location=device), strict=False)
-
-    def __call__(self, x, y):
-        return self.metric_fc(x, y)
-'''
