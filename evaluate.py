@@ -58,14 +58,14 @@ def evaluate(
         total_num += len(images) # batch num
         corrects_num += np.sum(acc) # corrent prediction num
 
-        preds_history.extend(list(preds))
-        labels_history.extend(list(labels_cpu))
+        preds_history.extend(list(map(lambda x: eval_dataset.i2l[x], preds)))
+        labels_history.extend(list(map(lambda x: eval_dataset.i2l[x], labels_cpu)))
 
     accuracy = corrects_num / total_num
 
     # print result
-    for p, l in zip(preds_history, labels_history):
-        print(p, l)
+    #for p, l in zip(preds_history, labels_history):
+    #    print(p, l)
 
     print('** ', log_dir, ' **')
     print('  Total data: {}'.format(total_num))
