@@ -63,7 +63,7 @@ class Generator(object):
         self.pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['model_name'], load_epoch))
         self.model.load_state_dict(fix_key(torch.load(self.pth_path, map_location=self.device)), strict=strict)
         #self.model.load_state_dict(torch.load(self.pth_path, map_location=self.device), strict=strict)
-        print('Load models in {} epochs'.format(load_epoch))
+        print('Load encoding model in {} epochs'.format(load_epoch))
     
     def __call__(self, x):
         return self.model(x)
@@ -106,7 +106,7 @@ class MetricGenerator(object):
         self.pth_path = os.path.join(self.log_dir, '{}_{}.pth'.format(self.config['metric_name'], load_epoch))
         self.metric_fc.load_state_dict(fix_key(torch.load(self.pth_path, map_location=self.device)), strict=strict)
         #self.metric_fc.load_state_dict(torch.load(self.pth_path, map_location=self.device), strict=strict)
-        print('Load models in {} epochs'.format(load_epoch))
+        print('Load metric model in {} epochs'.format(load_epoch))
     
     def __call__(self, x, y):
         return self.metric_fc(x, y)
