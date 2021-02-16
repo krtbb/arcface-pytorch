@@ -37,8 +37,7 @@ def evaluate(
     # load model and metrics
     model_gen = Generator(log_dir, epoch=epoch, device=device_name)
     metric_gen = MetricGenerator(log_dir, class_num, epoch=epoch, device=device_name)
-    assert model_gen.config['outsize'] == metric_gen.config['insize']
-
+    
     # run prediction
     preds_history = []
     labels_history = []
