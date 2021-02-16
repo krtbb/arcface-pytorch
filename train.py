@@ -214,7 +214,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_step', default=10, type=int)
     parser.add_argument('--model_name', default='resnet34', type=str, help='resnet34, resnet50, resnet101, resnet152')
     parser.add_argument('--num_workers', default=4, type=int, help='num_workers, default=4')
-    parser.add_argument('--print_freq', default=1e+3, type=int, help='frequency of printing results, default=4')
+    parser.add_argument('--print_freq', default=1e+3, type=int, help='frequency of printing results, default=1e+3')
     parser.add_argument('--debug', action='store_true')
 
     args = parser.parse_args()
