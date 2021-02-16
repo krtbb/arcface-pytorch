@@ -182,8 +182,8 @@ def train(
             #test_acc = np.mean((torch.argmax(output, dim=1) == label).type(torch.int32))
 
         if i % save_interval == 0 or i == epoch:
-            save_model(model, checkpoints_dir, model_name, i)
-            save_model(metric_fc, checkpoints_dir, metric_name, i)
+            save_model(model.module, checkpoints_dir, model_name, i)
+            save_model(metric_fc.module, checkpoints_dir, metric_name, i)
 
         new_time = datetime.datetime.now()
         with open(logging_path, 'a') as f:
