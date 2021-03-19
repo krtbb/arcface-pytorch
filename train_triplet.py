@@ -133,7 +133,8 @@ def train(
     prev_time = datetime.datetime.now()
     for i in range(epoch):
         model.train()
-        trainloader.dataset.shuffle_samples()
+        if i > 0:
+            trainloader.dataset.shuffle_samples()
         for ii, data in enumerate(tqdm(trainloader, disable=True)):
             anc_image, pos_image, neg_image = data
             anc_image = anc_image.to(device)
