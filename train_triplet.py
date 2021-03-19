@@ -190,7 +190,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('train_list')
     parser.add_argument('test_list')
-    parser.add_argument('--lr', default=0.001, type=float)
+    parser.add_argument('--lr', default=0.00001, type=float)
     parser.add_argument('--epoch', default=10000, type=int)
     parser.add_argument('--batchsize', default=64, type=int)
     parser.add_argument('--N', default=50000, type=int, help='size of sampled triplets, default=50000')
