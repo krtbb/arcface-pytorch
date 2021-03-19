@@ -128,7 +128,7 @@ def train(
         json.dump(config, f, indent=4)
 
     with open(logging_path, 'w') as f:
-        f.write('epoch,time_elapsed,train_loss,train_acc,test_loss,test_acc\n')
+        f.write('epoch,time_elapsed,train_loss,test_loss\n')
         
     prev_time = datetime.datetime.now()
     for i in range(epoch):
